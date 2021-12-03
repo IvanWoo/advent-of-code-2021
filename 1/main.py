@@ -30,9 +30,19 @@ def increases(iterable):
     return ans
 
 
+def q1():
+    return increases(get_input())
+
+
+def q2():
+    return increases(get_sliding_window_sum(get_input(), 3))
+
+
 def main():
-    print(increases(get_input()))
-    print(increases(get_sliding_window_sum(get_input(), 3)))
+    print(q1())
+    print(q2())
+    assert q1() == 1226
+    assert q2() == 1252
 
 
 if __name__ == "__main__":
