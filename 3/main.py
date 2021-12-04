@@ -9,63 +9,55 @@ INPUT_FILE = ROOT_DIR / "input.txt"
 def get_input():
     with fileinput.input(files=(INPUT_FILE)) as f:
         for line in f:
-            yield line.strip()
+            yield int(line, 2)
 
 
-def bin_to_dec(bin_str):
-    return int(bin_str, 2)
+def split(values, index):
+    mask = 1 << index
+    zeros = []
+    ones = []
+    for value in values:
+        if value & mask:
+            ones.append(value)
+        else:
+            zeros.append(value)
+    return zeros, ones
 
 
 def q1():
-    input_data = list(get_input())
+    values = list(get_input())
 
-    gamma = ""
-    epsilon = ""
-    counters = defaultdict(lambda: defaultdict(int))
-    for line in input_data:
-        for index, char in enumerate(line):
-            counters[index][char] += 1
-
-    for _, v in counters.items():
-        if v["1"] >= v["0"]:
-            gamma += "1"
-            epsilon += "0"
+    gamma = 0
+    epsilon = 0
+    for i in range(12):
+        zeros, ones = split(values, i)
+        if len(ones) > len(zeros):
+            gamma |= 1 << i
         else:
-            gamma += "0"
-            epsilon += "1"
-    return bin_to_dec(gamma) * bin_to_dec(epsilon)
+            epsilon |= 1 << i
+    return gamma * epsilon
+
+
+def search(values, less):
+    for i in range(11, -1, -1):
+        zeros, ones = split(values, i)
+        if less:
+            if len(ones) < len(zeros):
+                values = ones
+            else:
+                values = zeros
+        else:
+            if len(ones) >= len(zeros):
+                values = ones
+            else:
+                values = zeros
+        if len(values) == 1:
+            return values[0]
 
 
 def q2():
-    def count(input_data, included, pos):
-        counter = defaultdict(int)
-        for is_included, line in zip(included, input_data):
-            if not is_included:
-                continue
-            counter[line[pos]] += 1
-        return counter
-
-    def helper(input_data, target):
-        rates = {"gamma": "", "epsilon": ""}
-        included = [True] * len(input_data)
-        n = len(input_data[0])
-        product = None
-        for pos in range(n + 1):
-            if sum(included) == 1:
-                product = input_data[included.index(True)]
-                break
-            counters = count(input_data, included, pos)
-            if counters["1"] >= counters["0"]:
-                rates["gamma"] += "1"
-                rates["epsilon"] += "0"
-            else:
-                rates["gamma"] += "0"
-                rates["epsilon"] += "1"
-            included = [line.startswith(rates[target]) for line in input_data]
-        return bin_to_dec(product)
-
-    input_data = list(get_input())
-    return helper(input_data, "gamma") * helper(input_data, "epsilon")
+    values = list(get_input())
+    return search(values, 0) * search(values, 1)
 
 
 def main():
