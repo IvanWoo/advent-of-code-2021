@@ -17,66 +17,43 @@ def get_input():
 
 
 def is_small(name):
-    return name.islower()
+    return name[0].islower()
 
 
-def is_big(name):
-    return name.isupper()
-
-
-def run():
+def run(is_q2):
     routes = get_input()
     pathes = []
 
-    def backtrack(pos, visited):
+    def backtrack(pos, visited, support_small_dup):
         if pos == "end":
             pathes.append(visited)
             return
         for next_pos in routes[pos]:
-            count = sum(next_pos == p for p in visited)
-            if is_small(next_pos) and count == 1:
-                continue
-            backtrack(next_pos, visited + [next_pos])
-
-    backtrack("start", ["start"])
-    return pathes
-
-
-def run2():
-    routes = get_input()
-    pathes = set()
-
-    def backtrack(pos, visited, exclude_small=None):
-        if exclude_small in ["start", "end"]:
-            return
-        if pos == "end":
-            pathes.add(tuple(visited))
-            return
-        for next_pos in routes[pos]:
-            count = sum(next_pos == p for p in visited)
+            new_support_small_dup = support_small_dup
             if is_small(next_pos):
-                if (next_pos == exclude_small and count < 2) or count < 1:
-                    backtrack(next_pos, visited + [next_pos], exclude_small)
-                    backtrack(next_pos, visited + [next_pos], exclude_small or next_pos)
-            else:
-                backtrack(next_pos, visited + [next_pos], exclude_small)
+                if next_pos in visited:
+                    if support_small_dup and (next_pos not in ["start", "end"]):
+                        new_support_small_dup = False
+                    else:
+                        continue
+            backtrack(next_pos, visited + [next_pos], new_support_small_dup)
 
-    backtrack("start", ["start"])
+    backtrack("start", ["start"], is_q2)
     return pathes
 
 
 def debug(pathes):
-    for p in pathes:
+    for p in sorted(pathes):
         print(",".join(p))
 
 
 def q1():
-    pathes = run()
+    pathes = run(False)
     return len(pathes)
 
 
 def q2():
-    pathes = run2()
+    pathes = run(True)
     # debug(pathes)
     return len(pathes)
 
