@@ -1,3 +1,4 @@
+# https://github.com/anthonywritescode/aoc2021/blob/main/day16/part1.py
 from __future__ import annotations
 
 import fileinput
